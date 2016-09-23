@@ -57,6 +57,10 @@ namespace g2o {
   {
   }
 
+  EdgeSim3Prior::EdgeSim3Prior() :
+      BaseUnaryEdge<7, Sim3, VertexSim3Expmap>()
+  {
+  }
 
   bool VertexSim3Expmap::read(std::istream& is)
   {
@@ -123,6 +127,41 @@ namespace g2o {
   }
 
   bool EdgeSim3::write(std::ostream& os) const
+  {
+    Sim3 cam2world(measurement().inverse());
+    Vector7d v7 = cam2world.log();
+    for (int i=0; i<7; i++)
+    {
+      os  << v7[i] << " ";
+    }
+    for (int i=0; i<7; i++)
+      for (int j=i; j<7; j++){
+        os << " " <<  information()(i,j);
+    }
+    return os.good();
+  }
+
+  bool EdgeSim3Prior::read(std::istream& is)
+  {
+    Vector7d v7;
+    for (int i=0; i<7; i++){
+      is >> v7[i];
+    }
+
+    Sim3 cam2world(v7);
+    setMeasurement(cam2world.inverse());
+
+    for (int i=0; i<7; i++)
+      for (int j=i; j<7; j++)
+      {
+        is >> information()(i,j);
+        if (i!=j)
+          information()(j,i)=information()(i,j);
+      }
+    return true;
+  }
+
+  bool EdgeSim3Prior::write(std::ostream& os) const
   {
     Sim3 cam2world(measurement().inverse());
     Vector7d v7 = cam2world.log();

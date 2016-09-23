@@ -29,6 +29,7 @@
 
 #include "g2o/core/base_vertex.h"
 #include "g2o/core/base_binary_edge.h"
+#include "g2o/core/base_unary_edge.h"
 #include "g2o/types/sba/types_six_dof_expmap.h"
 #include "sim3.h"
 
@@ -125,6 +126,26 @@ namespace g2o {
   v2->setEstimate(measurement()*v1->estimate());
       else
   v1->setEstimate(measurement().inverse()*v2->estimate());
+    }
+  };
+
+  /**
+ * \brief 7D edge to a Vertex7
+ */
+  class EdgeSim3Prior : public BaseUnaryEdge<7, Sim3, VertexSim3Expmap>
+  {
+  public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    EdgeSim3Prior();
+    virtual bool read(std::istream& is);
+    virtual bool write(std::ostream& os) const;
+    void computeError()
+    {
+      const VertexSim3Expmap* v1 = static_cast<const VertexSim3Expmap*>(_vertices[0]);
+
+      Sim3 C(_measurement);
+      Sim3 error_=C*v1->estimate().inverse();
+      _error = error_.log();
     }
   };
 
