@@ -43,6 +43,8 @@ namespace g2o {
   {
     _marginalized=false;
     _fix_scale = false;
+    _fix_rotation = false;
+    _fix_translation = false;
     _principle_point[0] = 0;
     _principle_point[1] = 0;
     _focal_length[0] = 1;

@@ -56,8 +56,22 @@ namespace g2o {
     {
       Eigen::Map<Vector7d> update(const_cast<double*>(update_));
 
+      if (_fix_rotation)
+      {
+        update[0] = 0;
+        update[1] = 0;
+        update[2] = 0;
+      }
+      if (_fix_translation)
+      {
+        update[3] = 0;
+        update[4] = 0;
+        update[5] = 0;
+      }
       if (_fix_scale)
+      {
         update[6] = 0;
+      }
 
       Sim3 s(update);
       setEstimate(s*estimate());
@@ -75,6 +89,8 @@ namespace g2o {
     }
 
     bool _fix_scale;
+    bool _fix_rotation;
+    bool _fix_translation;
 
 
   protected:
